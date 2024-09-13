@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Breeds</title>
+  
+</head>
+<body>
+  <h1>Cat Breed Information</h1>
+
+  <div class="container">
+    <button onclick="fetchAllBreeds()">All Names</button>
+    <input type="number" id="healthIssueInput" placeholder="Enter health issue number" />
+    <button onclick="fetchHealthIssues()">Health Issues</button>
+    <button onclick="fetchWeights('imperial')">Weight (Imperial)</button>
+    <button onclick="fetchWeights('metric')">Weight (Metric)</button>
+    <button onclick="fetchIntelligenceAndFriendliness()">Intelligence - Friendly</button>
+    <button onclick="fetchAverageIntelligence()">Average Intelligence</button>
+    <button onclick="fetchAverageFriendlyIntelligence()">Avg Intelligence (Child Friendly)</button>
+  </div>
+
+  <table id="catInfoTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Weight</th>
+        <th>Intelligence</th>
+        <th>Child Friendly</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiURL = 'https://api.thecatapi.com/v1/breeds';
+
+    async function fetchData() {
+      const response = await fetch(apiURL);
+      return response.json();
+    }
+
+    async function fetchAllBreeds() {
+      const breeds = await fetchData();
+      const tbody = document.querySelector('#catInfoTable tbody');
+      tbody.innerHTML = ''; // Clear table
+      breeds.forEach(breed => {
+        const row = `<tr>
+          <td>${breed.name}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function fetchHealthIssues() {
+      const issueNumber = document.getElementById('healthIssueInput').value;
+      if (!issueNumber) return;
+      const breeds = await fetchData();
+      const filteredBreeds = breeds.filter(breed => breed.health_issues === Number(issueNumber));
+      const tbody = document.querySelector('#catInfoTable tbody');
+      tbody.innerHTML = ''; // Clear table
+      filteredBreeds.forEach(breed => {
+        const row = `<tr>
+          <td>${breed.name}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function fetchWeights(unit) {
+      const breeds = await fetchData();
+      const tbody = document.querySelector('#catInfoTable tbody');
+      tbody.innerHTML = ''; // Clear table
+      breeds.forEach(breed => {
+        const weight = unit === 'imperial' ? breed.weight.imperial : breed.weight.metric;
+        const row = `<tr>
+          <td>${breed.name}</td>
+          <td>${weight}</td>
+          <td></td>
+          <td></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function fetchIntelligenceAndFriendliness() {
+      const breeds = await fetchData();
+      const tbody = document.querySelector('#catInfoTable tbody');
+      tbody.innerHTML = ''; // Clear table
+      breeds.forEach(breed => {
+        const row = `<tr>
+          <td>${breed.name}</td>
+          <td></td>
+          <td>${breed.intelligence}</td>
+          <td>${breed.child_friendly}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function fetchAverageIntelligence() {
+      const breeds = await fetchData();
+      const totalIntelligence = breeds.reduce((sum, breed) => sum + breed.intelligence, 0);
+      const average = totalIntelligence / breeds.length;
+      alert('Average Intelligence of all cats: ' + average.toFixed(2));
+    }
+
+    async function fetchAverageFriendlyIntelligence() {
+      const breeds = await fetchData();
+      const friendlyBreeds = breeds.filter(breed => breed.child_friendly >= 4);
+      const totalIntelligence = friendlyBreeds.reduce((sum, breed) => sum + breed.intelligence, 0);
+      const average = totalIntelligence / friendlyBreeds.length;
+      alert('Average Intelligence of child-friendly cats: ' + average.toFixed(2));
+    }
+  </script>
+</body>
+</html>
